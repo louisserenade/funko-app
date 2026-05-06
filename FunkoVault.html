@@ -67,12 +67,13 @@ td.muted{color:var(--muted);text-align:right}
 .badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;white-space:nowrap}
 .s-Done{background:var(--green-bg);color:var(--green-tx)}
 .s-Sent-to-VN{background:var(--blue-bg);color:var(--blue-tx)}
-.s-Delivered-in-US{background:#C0DD97;color:#173404}
 .s-Purchased{background:var(--purple-lt);color:var(--purple-dk)}
 .s-Sent-to-Customer{background:var(--teal-bg);color:var(--teal-tx)}
 .s-Stored{background:var(--gray-bg);color:var(--gray-tx)}
 .s-Pre-Ordered{background:var(--amber-bg);color:var(--amber-tx)}
 .s-In-Transit{background:#B5D4F4;color:#042C53}
+.s-In-Transist{background:#FF9800;color:#fff}
+.s-Deliveried-in-US{background:#4CAF50;color:#fff}
 .s-Return{background:var(--red-bg);color:var(--red-tx)}
 .s-Cancelled{background:#F7C1C1;color:#501313}
 .s-Refunded{background:#FAECE7;color:#712B13}
@@ -143,7 +144,7 @@ td.muted{color:var(--muted);text-align:right}
     <div class="top-right">
       <div class="rate-box">
         <span>Tỷ giá:</span>
-        <input type="number" id="usdRate" value="25500" onchange="render()">
+        <input type="number" id="usdRate" value="26200" onchange="render()">
         <span>₫/$</span>
       </div>
       <button class="btn" onclick="loadData()">↻ Refresh</button>
@@ -159,7 +160,7 @@ td.muted{color:var(--muted);text-align:right}
     <input type="text" id="search" placeholder="Tìm tên, khách, cửa hàng..." oninput="render()">
     <select id="fStatus" onchange="render()">
       <option value="">Tất cả tình trạng</option>
-      <option>Done</option><option>Sent to VN</option><option>Delivered in US</option>
+      <option>Done</option><option>Sent to VN</option>
       <option>Purchased</option><option>Sent to Customer</option><option>Stored</option>
       <option>Pre-Ordered</option><option>In-Transit</option><option>Return</option>
       <option>Cancelled</option><option>Refunded</option><option>Deposited</option><option>In Stock</option>
@@ -234,7 +235,7 @@ td.muted{color:var(--muted);text-align:right}
         <select id="fStatusIn">
           <option>Pre-Ordered</option><option>Purchased</option><option>Deposited</option>
           <option>In Stock</option><option>Stored</option><option>Sent to VN</option>
-          <option>In-Transit</option><option>Delivered in US</option>
+          <option>In-Transit</option>
           <option>Sent to Customer</option><option>Done</option>
           <option>Return</option><option>Refunded</option><option>Cancelled</option>
         </select>
@@ -296,7 +297,7 @@ td.muted{color:var(--muted);text-align:right}
 
 <script>
 const SHOPS=['Amazon','Ebay','Facebook','Hot Topic','BoxLunch','Target','Funko-Shop','GameStop','Mercari','Walmart','Small Stores','Other Stores'];
-const STATUSES=['Pre-Ordered','Purchased','Deposited','In Stock','Stored','Sent to VN','In-Transit','Delivered in US','Sent to Customer','Done','Return','Refunded','Cancelled'];
+const STATUSES=['Pre-Ordered','Purchased','Deposited','In Stock','Stored','Sent to VN','In-Transit','Sent to Customer','Done','Return','Refunded','Cancelled'];
 
 let CFG={url:'',pwd:''};
 let items=[];
@@ -367,7 +368,16 @@ function calcItem(i){
 }
 
 function statusClass(s){
-  return 's-'+(s||'').replace(/\s+/g,'-')||'s-def';
+  const map={
+    'Done':'s-Done','Sent to VN':'s-Sent-to-VN',
+    'Deliveried in US':'s-Deliveried-in-US',
+    'Purchased':'s-Purchased','Sent to Customer':'s-Sent-to-Customer',
+    'Stored':'s-Stored','Pre-Ordered':'s-Pre-Ordered',
+    'In-Transit':'s-In-Transit','In-Transist':'s-In-Transist',
+    'Return':'s-Return','Cancelled':'s-Cancelled',
+    'Refunded':'s-Refunded','Deposited':'s-Deposited','In Stock':'s-In-Stock'
+  };
+  return map[s]||'s-def';
 }
 
 function renderStats(){
@@ -377,7 +387,7 @@ function renderStats(){
   const totalCost=real.reduce((s,i)=>s+(parseFloat(i['Vốn'])||0)+(parseFloat(i['Vận Chuyển'])||0)+(parseFloat(i['Phụ phí'])||0),0);
   const active=items.filter(i=>!['Done','Cancelled','Refunded'].includes(i['Tình trạng'])).length;
   document.getElementById('stats').innerHTML=`
-    <div class="stat"><div class="stat-label">Tổng sản phẩm</div><div class="stat-val purple">${items.length}</div></div>
+    <div class="stat"><div class="stat-label">Tổng sản phẩm</div><div class="stat-val purple">${items.filter(i=>i['Product']).length}</div></div>
     <div class="stat"><div class="stat-label">Đang xử lý</div><div class="stat-val">${active}</div></div>
     <div class="stat"><div class="stat-label">Tổng vốn bỏ ra</div><div class="stat-val" style="font-size:13px">${vnd(totalCost)}</div></div>
     <div class="stat"><div class="stat-label">Lời (Done)</div><div class="stat-val ${totalProfit>=0?'green':'red'}" style="font-size:13px">${vnd(totalProfit)}</div></div>
@@ -391,7 +401,7 @@ function render(){
   const st=document.getElementById('fStatus').value;
   const sh=document.getElementById('fShop').value;
   const so=document.getElementById('sortBy').value;
-  let list=items.filter(i=>{
+  let list=items.filter(i=>i['Product']).filter(i=>{
     const fields=[i['Product'],i['Khách'],i['Cửa hàng'],i['Note']];
     if(q&&!fields.some(x=>(x||'').toLowerCase().includes(q)))return false;
     if(st&&i['Tình trạng']!==st)return false;
