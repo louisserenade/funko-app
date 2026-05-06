@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FunkoVault</title>
+<title>Funko Marsupilami Manage</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -87,7 +87,7 @@ td.muted{color:var(--muted);text-align:right}
 .loading{text-align:center;padding:3rem;color:var(--muted)}
 
 /* COL WIDTHS */
-.c-product{width:175px}.c-sm{width:90px}.c-xs{width:72px}.c-status{width:128px}.c-note{width:140px}.c-act{width:66px;text-align:center}
+.c-stt{width:44px;text-align:center;color:var(--muted)}.c-product{width:175px}.c-sm{width:90px}.c-xs{width:72px}.c-status{width:128px}.c-note{width:140px}.c-act{width:66px;text-align:center}
 
 /* MODAL */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.32);z-index:500;overflow-y:auto;padding:32px 12px}
@@ -182,6 +182,7 @@ td.muted{color:var(--muted);text-align:right}
   <div class="tbl-wrap">
     <table>
       <thead><tr>
+        <th class="c-stt">#</th>
         <th class="c-product">Product</th>
         <th class="c-sm">Vốn USD</th>
         <th class="c-sm">Vốn (₫)</th>
@@ -198,7 +199,7 @@ td.muted{color:var(--muted);text-align:right}
         <th class="c-note">Note</th>
         <th class="c-act"></th>
       </tr></thead>
-      <tbody id="tbody"><tr><td colspan="15" class="loading">Đang tải...</td></tr></tbody>
+      <tbody id="tbody"><tr><td colspan="16" class="loading">Đang tải...</td></tr></tbody>
     </table>
   </div>
 </div>
@@ -336,7 +337,7 @@ async function api(body){
   return res.json();
 }
 async function loadData(){
-  document.getElementById('tbody').innerHTML='<tr><td colspan="15" class="loading">Đang tải dữ liệu...</td></tr>';
+  document.getElementById('tbody').innerHTML='<tr><td colspan="16" class="loading">Đang tải dữ liệu...</td></tr>';
   try{
     const r=await api({action:'getAll'});
     if(!r.ok)throw new Error(r.error);
@@ -344,7 +345,7 @@ async function loadData(){
     render();
     toast('Đã tải '+items.length+' sản phẩm');
   }catch(e){
-    document.getElementById('tbody').innerHTML='<tr><td colspan="15" class="empty">Lỗi: '+e.message+'</td></tr>';
+    document.getElementById('tbody').innerHTML='<tr><td colspan="16" class="empty">Lỗi: '+e.message+'</td></tr>';
   }
 }
 
@@ -401,13 +402,14 @@ function render(){
   else if(so==='price_desc')list.sort((a,b)=>calcItem(b).sell-calcItem(a).sell);
 
   const tbody=document.getElementById('tbody');
-  if(!list.length){tbody.innerHTML='<tr><td colspan="15" class="empty">Không có dữ liệu phù hợp</td></tr>';return;}
+  if(!list.length){tbody.innerHTML='<tr><td colspan="16" class="empty">Không có dữ liệu phù hợp</td></tr>';return;}
 
-  tbody.innerHTML=list.map(i=>{
+  tbody.innerHTML=list.map((i,idx)=>{
     const{remain,profit,sell}=calcItem(i);
     const pc=profit>0?'profit':profit<0?'loss':'muted';
     const id=i['_id']||'';
     return`<tr>
+      <td class="c-stt">${idx+1}</td>
       <td class="c-product" title="${esc(i['Product'])}">${esc(i['Product']||'')}</td>
       <td class="r c-sm">${usd(i['Vốn USD'])}</td>
       <td class="r c-sm">${vnd(i['Vốn'])}</td>
