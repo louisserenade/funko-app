@@ -121,7 +121,7 @@ td.muted{color:var(--muted);text-align:right}
 <!-- SETUP SCREEN -->
 <div id="setupScreen">
   <div class="setup-card">
-    <h1>Funko<span>Vault</span></h1>
+    <h1>Funko <span>Marsupilami</span> Manage</h1>
     <p>Nhập URL và password Apps Script để kết nối Google Sheet của bạn.</p>
     <div class="setup-field">
       <label>Apps Script URL</label>
@@ -139,7 +139,7 @@ td.muted{color:var(--muted);text-align:right}
 <!-- MAIN APP -->
 <div id="mainApp">
   <div class="topbar">
-    <div class="logo">Funko<span>Vault</span></div>
+    <div class="logo">Funko <span>Marsupilami</span> Manage</div>
     <div class="top-right">
       <div class="rate-box">
         <span>Tỷ giá:</span>
@@ -355,14 +355,15 @@ function vnd(n){if(!n||n==0)return'—';return new Intl.NumberFormat('vi-VN').fo
 function usd(n){return n?'$'+parseFloat(n).toFixed(2):'—';}
 
 function calcItem(i){
-  const von=parseFloat(i['Vốn'])||0;
+  const vonUSD=parseFloat(i['Vốn USD'])||0;
+  const von=vonUSD ? vonUSD*rate() : (parseFloat(i['Vốn'])||0);
   const ship=parseFloat(i['Vận Chuyển'])||0;
   const extra=parseFloat(i['Phụ phí'])||0;
   const sell=parseFloat(i['Giá bán'])||0;
   const deposit=parseFloat(i['Cọc'])||0;
   const remain=Math.max(0,sell-deposit);
   const profit=sell-(von+ship+extra);
-  return{remain,profit,sell};
+  return{remain,profit,sell,von};
 }
 
 function statusClass(s){
