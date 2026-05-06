@@ -330,7 +330,9 @@ function showErr(msg){const e=document.getElementById('setupErr');e.textContent=
 
 // ---- API ----
 async function api(body){
-  const res=await fetch(CFG.url,{method:'POST',body:JSON.stringify({...body,pwd:CFG.pwd}),headers:{'Content-Type':'application/json'}});
+  const payload={...body,pwd:CFG.pwd};
+  const qs=Object.keys(payload).map(k=>encodeURIComponent(k)+'='+encodeURIComponent(typeof payload[k]==='object'?JSON.stringify(payload[k]):payload[k])).join('&');
+  const res=await fetch(CFG.url+'?'+qs);
   return res.json();
 }
 async function loadData(){
